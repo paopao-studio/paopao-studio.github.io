@@ -204,47 +204,62 @@
         .link-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            overflow: hidden; /* 画像の角丸をカードに収める */
             text-decoration: none;
             color: inherit;
             box-shadow: var(--shadow-sm);
             transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column; /* 縦並び構造に変更 */
         }
         
         .link-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: var(--shadow-md);
             border-color: var(--primary-color);
         }
         
-        /* ロゴとタイトルの横並びエリア */
-        .link-card-left {
-            display: flex;
-            align-items: center;
-            gap: 0.875rem;
+        /* カード上部のバナー画像領域（横幅めいっぱい） */
+        .link-card-banner {
+            width: 100%;
+            aspect-ratio: 16 / 9; /* 1280x720などの比率を綺麗に保つ */
+            overflow: hidden;
+            background-color: #f1f5f9;
         }
         
-        /* 画像ロゴのスタイル */
-        .link-card-logo {
-            width: 36px;
-            height: 36px;
-            object-fit: contain;
-            border-radius: 6px;
+        .link-card-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 枠いっぱいに綺麗に収める */
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        
+        /* ホバー時に画像がうっすら拡大する演出（任意） */
+        .link-card:hover .link-card-banner img {
+            transform: scale(1.03);
+        }
+        
+        /* カード下部のテキスト＆矢印領域 */
+        .link-card-body {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-card);
         }
         
         .link-card-title {
             font-size: 1.25rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-main);
         }
         
         .link-card-arrow {
             font-size: 1.25rem;
-            color: var(--text-muted);
+            color: var(--primary-color);
+            font-weight: bold;
         }
 
         .project-card {
@@ -397,20 +412,29 @@
         <section>
             <h2 class="section-title">発信</h2>
             <div class="link-grid">
+                
+                <!-- note カード -->
                 <a href="https://note.com/paopaosan_note" target="_blank" rel="noopener noreferrer" class="link-card">
-                    <div class="link-card-left">
-                        <img src="asset/note.png" alt="note ロゴ" class="link-card-logo">
+                    <div class="link-card-banner">
+                        <img src="asset/note.png" alt="note バナー">
+                    </div>
+                    <div class="link-card-body">
                         <span class="link-card-title">note</span>
+                        <span class="link-card-arrow">&rarr;</span>
                     </div>
-                    <span class="link-card-arrow">&rarr;</span>
                 </a>
+        
+                <!-- Udemy カード -->
                 <a href="https://www.udemy.com/user/paopao-10/" target="_blank" rel="noopener noreferrer" class="link-card">
-                    <div class="link-card-left">
-                        <img src="asset/udemy.png" alt="Udemy ロゴ" class="link-card-logo">
-                        <span class="link-card-title">Udemy</span>
+                    <div class="link-card-banner">
+                        <img src="asset/udemy.png" alt="Udemy バナー">
                     </div>
-                    <span class="link-card-arrow">&rarr;</span>
+                    <div class="link-card-body">
+                        <span class="link-card-title">Udemy</span>
+                        <span class="link-card-arrow">&rarr;</span>
+                    </div>
                 </a>
+        
             </div>
         </section>
 
