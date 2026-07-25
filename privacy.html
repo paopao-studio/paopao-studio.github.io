@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プライバシーポリシー - パオパオ (PaoPao)</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            color: var(--text-main);
+            background-color: var(--bg-main);
+        }
+
+        /* Header / Navbar */
+        header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-color);
+        }
+
+        /* Container Layout */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+
+        /* Privacy Policy Card */
+        .policy-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .policy-section {
+            margin-bottom: 2rem;
+        }
+
+        .policy-section h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .policy-section p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .policy-section ul {
+            margin-left: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .policy-section li {
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-email {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-email:hover {
+            text-decoration: underline;
+        }
+
+        /* Back Button */
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            background-color: var(--bg-card);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="nav-container">
+            <a href="index.html" class="logo">パオパオ (PaoPao)</a>
+            <ul class="nav-links">
+                <li><a href="index.html">ホーム</a></li>
+                <li><a href="privacy.html" class="active">プライバシーポリシー</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="policy-card">
+            <h1 class="page-title">プライバシーポリシー</h1>
+
+            <div class="policy-section">
+                <h2>1. 個人情報の収集について</h2>
+                <p>当サイトおよび配信アプリ（以下、「本サービス」といいます）では、お問い合わせやご利用に際して、お名前、メールアドレス等の個人情報をご提供いただく場合があります。</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>2. 個人情報の利用目的</h2>
+                <p>収集した個人情報は、以下の目的で利用いたします。</p>
+                <ul>
+                    <li>お問い合わせやご相談に対する回答および連絡のため</li>
+                    <li>本サービスの改善、品質向上、新サービス開発のため</li>
+                    <li>その他、上記利用目的に付随する目的のため</li>
+                </ul>
+            </div>
+
+            <div class="policy-section">
+                <h2>3. 個人情報の第三者提供</h2>
+                <p>当方では、法令に基づく場合を除き、ご本人の同意を得ることなく第三者に個人情報を提供することはありません。</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>4. アクセス解析・広告配信ツールについて</h2>
+                <p>本サービスでは、利用状況の把握やサービス改善、広告配信のためにGoogle Analytics等の第三者ツールを使用する場合があります。これにより収集されるデータは匿名であり、個人を特定するものではありません。</p>
+            </div>
+
+            <div class="policy-section">
+                <h2>5. お問い合わせ窓口</h2>
+                <p>本プライバシーポリシーに関するお問い合わせは、以下のメールアドレスまでお願いいたします。</p>
+                <p>メールアドレス: <a href="mailto:paopao_note@outlook.jp" class="contact-email">paopao_note@outlook.jp</a></p>
+            </div>
+
+            <div class="policy-section">
+                <h2>6. プライバシーポリシーの改定</h2>
+                <p>当方は、必要に応じて本プライバシーポリシーの内容を変更することがあります。変更後のポリシーは、本ページに掲載した時点から効力を生じるものとします。</p>
+            </div>
+
+            <a href="index.html" class="back-link">&larr; ホームへ戻る</a>
+        </div>
+    </main>
+
+    <footer>
+        &copy; パオパオ (PaoPao) All Rights Reserved.
+    </footer>
+
+</body>
+</html>
