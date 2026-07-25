@@ -200,12 +200,12 @@
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
         }
-
+        
         .link-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 1.5rem;
+            padding: 1rem 1.5rem;
             text-decoration: none;
             color: inherit;
             box-shadow: var(--shadow-sm);
@@ -214,29 +214,37 @@
             align-items: center;
             justify-content: space-between;
         }
-
+        
         .link-card:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
             border-color: var(--primary-color);
         }
-
+        
+        /* ロゴとタイトルの横並びエリア */
+        .link-card-left {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+        }
+        
+        /* 画像ロゴのスタイル */
+        .link-card-logo {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        
         .link-card-title {
             font-size: 1.25rem;
             font-weight: 600;
-            color: var(--primary-color);
+            color: var(--text-main);
         }
-
+        
         .link-card-arrow {
             font-size: 1.25rem;
             color: var(--text-muted);
-        }
-
-        /* Project Cards Grid */
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.25rem;
         }
 
         .project-card {
@@ -390,11 +398,17 @@
             <h2 class="section-title">発信</h2>
             <div class="link-grid">
                 <a href="https://note.com/paopaosan_note" target="_blank" rel="noopener noreferrer" class="link-card">
-                    <span class="link-card-title">note</span>
+                    <div class="link-card-left">
+                        <img src="asset/note.png" alt="note ロゴ" class="link-card-logo">
+                        <span class="link-card-title">note</span>
+                    </div>
                     <span class="link-card-arrow">&rarr;</span>
                 </a>
                 <a href="https://www.udemy.com/user/paopao-10/" target="_blank" rel="noopener noreferrer" class="link-card">
-                    <span class="link-card-title">Udemy</span>
+                    <div class="link-card-left">
+                        <img src="asset/udemy.png" alt="Udemy ロゴ" class="link-card-logo">
+                        <span class="link-card-title">Udemy</span>
+                    </div>
                     <span class="link-card-arrow">&rarr;</span>
                 </a>
             </div>
