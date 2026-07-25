@@ -212,6 +212,13 @@
             padding: 1.25rem;
             box-shadow: var(--shadow-sm);
         }
+        
+        .project-card.empty {
+            background-color: transparent;
+            border: 1px solid transparent;
+            box-shadow: none;
+            pointer-events: none; /* クリックやホバー反応を無効化 */
+        }
 
         .project-title {
             font-size: 1.1rem;
@@ -417,7 +424,7 @@
                         <span class="meta-status">制作中</span>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card.empty">
                 </div>
             </div>
 
@@ -464,7 +471,7 @@
                         <span class="meta-status">制作中</span>
                     </div>
                 </div>
-                <div class="project-card">
+                <div class="project-card.empty">
                 </div>
             </div>
         </section>
