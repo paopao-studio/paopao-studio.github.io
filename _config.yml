@@ -1,0 +1,13 @@
+title: パオパオ Studio
+description: 個人開発ポータル
+theme: jekyll-theme-minimal
+logo: /assets/images/logo.png
+show_downloads: false
+
+nav:
+  - name: ホーム
+    link: /
+  - name: 個人開発
+    link: /projects/se-series
+  - name: プライバシーポリシー
+    link: /privacy
