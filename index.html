@@ -98,21 +98,55 @@
         .hero-content {
             flex: 1;
         }
-
+        /* Hero画像と資格情報の表示エリア */
         .hero-image-wrapper {
             flex-shrink: 0;
             width: 200px;
             display: flex;
-            justify-content: center;
+            flex-direction: column; /* 画像の下に資格情報を縦並び */
             align-items: center;
+            gap: 0.75rem;
         }
-
+        
         .hero-image {
             width: 100%;
             height: auto;
             max-width: 200px;
             border-radius: 12px;
             object-fit: cover;
+        }
+        
+        /* 画像下の保有資格スタイル */
+        .hero-qualifications {
+            width: 100%;
+            background-color: #f1f5f9; /* 薄いグレー背景 */
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        
+        .qual-title {
+            font-weight: 700;
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.25rem;
+        }
+        
+        .qual-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            line-height: 1.4;
+        }
+        
+        .qual-list li {
+            margin-top: 0.15rem;
         }
 
         .hero-title {
@@ -340,14 +374,14 @@
             <div class="hero-image-wrapper">
                 <img src="asset/paopao.png" alt="パオパオ (PaoPao) プロフィール画像" class="hero-image">
             </div>
-        </div>
-
-        <div class="hero-card">
-            <div class="hero-content">
-                <h1 class="hero-desc">保有資格</h1>
-                <p class="hero-desc">MS資格学習:7種</p>
-                <p class="hero-desc">IPA:5種</p>
-                <p class="hero-desc">その他:PMP,簿記2級など</p>
+            <!-- 画像下に小さく表示する保有資格エリア -->
+            <div class="hero-qualifications">
+                <span class="qual-title">保有資格</span>
+                <ul class="qual-list">
+                    <li>MS認定資格:7種</li>
+                    <li>IPA:5種</li>
+                    <li>その他:PMP,簿記2級など</li>
+                </ul>
             </div>
         </div>
         
