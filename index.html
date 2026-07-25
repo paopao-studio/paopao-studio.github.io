@@ -89,6 +89,30 @@
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-color);
             margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .hero-content {
+            flex: 1;
+        }
+
+        .hero-image-wrapper {
+            flex-shrink: 0;
+            width: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: auto;
+            max-width: 200px;
+            border-radius: 12px;
+            object-fit: cover;
         }
 
         .hero-title {
@@ -106,6 +130,20 @@
         .note-text {
             font-size: 0.875rem;
             color: #9ca3af;
+        }
+
+        /* Responsive Layout for Hero */
+        @media (max-width: 768px) {
+            .hero-card {
+                flex-direction: column-reverse;
+                padding: 1.75rem;
+                text-align: center;
+            }
+
+            .hero-image-wrapper {
+                width: 160px;
+                margin-bottom: 0.5rem;
+            }
         }
 
         /* Section Styling */
@@ -263,11 +301,16 @@
 
         <!-- Hero Section -->
         <div class="hero-card">
-            <h1 class="hero-title">3児パパエンジニア</h1>
-            <p class="hero-desc">MS資格学習・バイブコーディング・個人開発を記録中。</p>
-            <p class="hero-desc">家事はWBS、育児はリスク管理で運用中。</p>
-            <p class="hero-desc">エンジニアの視点で、仕事・AI・家庭を「仕組み」で考え、実践したことを発信しています。</p>
-            <p class="note-text">※個人の見解です</p>
+            <div class="hero-content">
+                <h1 class="hero-desc">3児パパエンジニア</h1>
+                <p class="hero-desc">MS資格学習・バイブコーディング・個人開発を記録中。</p>
+                <p class="hero-desc">家事はWBS、育児はリスク管理で運用中。</p>
+                <p class="hero-desc">エンジニアの視点で、仕事・AI・家庭を「仕組み」で考え、実践したことを発信しています。</p>
+                <p class="note-text">※個人の見解です</p>
+            </div>
+            <div class="hero-image-wrapper">
+                <img src="asset/paopao.png" alt="パオパオ (PaoPao) プロフィール画像" class="hero-image">
+            </div>
         </div>
 
         <!-- 発信 Section -->
