@@ -220,6 +220,27 @@
             pointer-events: none; /* クリックやホバー反応を無効化 */
         }
 
+        /* 公開済みカード用のスタイル */
+        .project-card.published {
+            border: 2px solid var(--primary-color); /* 枠線を太く青色に */
+            background-color: #f0f7ff; /* 背景をほんのり青みがかった色に */
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); /* うっすら青い影 */
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        /* ホバー時に少し浮き上がる演出（任意） */
+        .project-card.published:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2);
+        }
+        
+        /* 公開済みのバッジ（青地に白文字） */
+        .project-card.published .meta-status {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
         .project-title {
             font-size: 1.1rem;
             font-weight: 600;
@@ -410,7 +431,7 @@
             <!-- 家庭用ツール -->
             <h3 class="category-title">家庭用ツール</h3>
             <div class="grid-3">
-                <div class="project-card">
+                <div class="project-card.published">
                     <div class="project-title">HomeCocktailBarMenu</div>
                     <div class="project-meta">
                         <span class="badge">Android</span>
