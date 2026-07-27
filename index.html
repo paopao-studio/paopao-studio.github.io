@@ -338,7 +338,64 @@
             margin: 1.5rem 0 1rem 0;
             color: var(--text-main);
         }
-
+        
+        /* ツールチップの親要素 */
+        .has-tooltip {
+            position: relative;
+            cursor: help; /* カーソルを「？」マークに変更（任意） */
+            border-bottom: 1px dashed var(--text-muted); /* 下線をつけてホバーできることを提示（任意） */
+        }
+        
+        /* ツールチップ本体（吹き出し） */
+        .has-tooltip::after {
+            content: attr(data-tooltip); /* data-tooltipの中身を表示 */
+            position: absolute;
+            bottom: 125%; /* テキストの少し上に配置 */
+            left: 50%;
+            transform: translateX(-50%);
+            
+            /* 見ため・装飾 */
+            background-color: #1e293b; /* 濃いグレー・黒系 */
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: normal;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            white-space: nowrap; /* 改行させずに1行で表示 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            
+            /* 初期状態は非表示 */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* ツールチップの下三角矢印 */
+        .has-tooltip::before {
+            content: "";
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+            
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* ホバー時に表示 */
+        .has-tooltip:hover::after,
+        .has-tooltip:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
         /* Contact Section */
         .contact-box {
             background-color: #eff6ff;
@@ -450,7 +507,11 @@
             <h2 class="section-title">個人開発</h2>
 
             <!-- SE×〇〇シリーズ -->
-            <h3 class="category-title">SE×〇〇シリーズ</h3>
+            <h3 class="category-title">
+                <span class="has-tooltip" data-tooltip="SEの仕事をテーマに軽量ゲームを作るプロジェクト群">
+                    SE×〇〇シリーズ
+                </span>
+            </h3>
             <div class="grid-3">
                 <div class="project-card published">
                     <div class="project-title">SIer診断</div>
@@ -518,7 +579,11 @@
             </div>
 
             <!-- 家庭用ツール -->
-            <h3 class="category-title">家庭用ツール</h3>
+            <h3 class="category-title">
+                <span class="has-tooltip" data-tooltip="家庭の困りごとを少し便利にするツール群">
+                    家庭用ツール
+                </span>
+            </h3>
             <div class="grid-3">
                 <div class="project-card published">
                     <div class="project-title">HomeCocktailBarMenu</div>
@@ -539,7 +604,11 @@
             </div>
 
             <!-- 知育シリーズ -->
-            <h3 class="category-title">知育シリーズ</h3>
+            <h3 class="category-title">
+                <span class="has-tooltip" data-tooltip="主に未就学児対象の親と一緒に遊ぶプロジェクト群">
+                    知育シリーズ
+                </span>
+            </h3>
             <div class="grid-3">
                 <div class="project-card">
                     <div class="project-title">つくってあそぼ！<br>ぬりえランド</div>
@@ -564,8 +633,12 @@
                 </div>
             </div>
 
-            <!-- その他ゲーム -->
-            <h3 class="category-title">趣味開発</h3>
+            <!-- 趣味開発 -->
+            <h3 class="category-title">
+                <span class="has-tooltip" data-tooltip="パオパオが作りたいと思っただけのゲーム群">
+                    趣味開発
+                </span>
+            </h3>
             <div class="grid-3">
                 <div class="project-card">
                     <div class="project-title">EGOIST</div>
