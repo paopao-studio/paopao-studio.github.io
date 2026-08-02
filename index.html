@@ -396,6 +396,62 @@
             opacity: 1;
             visibility: visible;
         }
+        /* 2列レイアウト（ピックアップ 3 : Xタイムライン 1） */
+        .portal-grid-section {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        /* 左側：ピックアップカードのスタイル */
+        .pickup-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            height: calc(100% - 2.5rem); /* セクションタイトルの分を考慮して高さを揃える */
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .pickup-title {
+            font-size: 1.25rem;
+            margin: 0.75rem 0 0.5rem 0;
+            color: var(--text-main);
+        }
+        
+        .pickup-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .pickup-link {
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        /* 右側：Xタイムライン枠のスタイル */
+        .twitter-timeline-wrapper {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            max-height: 400px; /* 高さ制限 */
+        }
+        
+        /* スマホ表示時（768px以下）は縦並び（1列）に自動で切り替え */
+        @media (max-width: 768px) {
+            .portal-grid-section {
+                grid-template-columns: 1fr;
+            }
+        }
         /* Contact Section */
         .contact-box {
             background-color: #eff6ff;
