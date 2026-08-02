@@ -516,6 +516,50 @@
                 grid-template-columns: 1fr;
             }
         }
+        /* Xリンクカードのスタイル */
+        .x-link-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: var(--shadow-sm);
+            height: calc(100% - 2.5rem); /* 左のピックアップカードと高さを揃える */
+            box-sizing: border-box;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .x-link-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-color);
+        }
+        
+        .x-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-main);
+        }
+        
+        .x-card-desc {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 1rem 0;
+            line-height: 1.5;
+        }
+        
+        .x-btn {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
         /* Contact Section */
         .contact-box {
             background-color: #eff6ff;
@@ -606,17 +650,23 @@
         
             <!-- 右側：Xタイムライン（割合 1） -->
             <div class="timeline-area">
-                <h2 class="section-title">X (Twitter)</h2>
-                <div class="twitter-timeline-wrapper">
-                    <a class="twitter-timeline" 
-                       data-height="400" 
-                       data-theme="light" 
-                       href="https://x.com/paopao_x_note">
-                       Tweets by paopao_x_note
-                    </a>
-                    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-                </div>
+            <h2 class="section-title">X (Twitter)</h2>
+            <div class="x-card-wrapper">
+                <a href="https://x.com/paopao_x_note" target="_blank" rel="noopener noreferrer" class="x-link-card">
+                    <div class="x-card-header">
+                        <!-- Xのロゴ -->
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                        <span>@paopao_x_note</span>
+                    </div>
+                    <p class="x-card-desc">
+                        仕事・家庭の「仕組み化」や個人開発の進捗、日々の学びをリアルタイムで発信中！
+                    </p>
+                    <span class="x-btn">最新ポストを見る &rarr;</span>
+                </a>
             </div>
+        </div>
         </section>
         <!-- 発信 Section -->
         <section>
@@ -663,7 +713,6 @@
                     <div class="project-title">SIer診断</div>
                     <div class="project-meta">
                         <span class="badge">Web</span>
-                        <span class="meta-status"><a href="https://claude.ai/public/artifacts/e4c65d91-a470-45cd-b2b3-951cc936dc9a" target="blank">Claude公開中</a></span>
                     </div>
                     <!-- 1行コメント -->
                     <p class="project-comment">
@@ -824,7 +873,13 @@
                         <span class="meta-status">制作中</span>
                     </div>
                 </div>
-                <div class="project-card.empty">
+                <div class="project-card">
+                    <div class="project-title">キメラバトル</div>
+                    <div class="project-meta">
+                        <span class="badge">Steam</span>
+                        <span class="meta-status">制作中</span>
+                    </div>
+                </div>
                 </div>
             </div>
         </section>
