@@ -269,12 +269,76 @@
             gap: 1.25rem;
         }
 
+        /* プロジェクトカード全体の調整 */
         .project-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 1.25rem;
             box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        /* 1行コメント欄 */
+        .project-comment {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background-color: #f8fafc; /* ほんのり薄い背景 */
+            border-left: 3px solid var(--primary-color); /* ワンポイントの左線 */
+            padding: 0.5rem 0.75rem;
+            margin: 0.875rem 0;
+            border-radius: 0 6px 6px 0;
+            line-height: 1.4;
+        }
+        
+        /* リンクボタンの並び（横並び） */
+        .project-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto; /* ボタン群を常にカード下部に固定 */
+            flex-wrap: wrap;  /* 幅が狭い時に自然に折り返し */
+        }
+        
+        /* 共通ボタン基本スタイル */
+        .btn-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            flex: 1; /* ボタンの幅を均等に伸ばす */
+            white-space: nowrap;
+        }
+        
+        /* プライマリボタン（直接リンク） */
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        /* サブボタン（note記事用） */
+        .btn-note {
+            background-color: #ffffff;
+            color: #22c55e; /* noteっぽいグリーン、または既存テーマのテキスト色 */
+            border: 1px solid #22c55e;
+        }
+        
+        .btn-note:hover {
+            background-color: #f0fdf4;
+            transform: translateY(-1px);
         }
         
         .project-card.empty {
@@ -601,6 +665,20 @@
                         <span class="badge">Web</span>
                         <span class="meta-status"><a href="https://claude.ai/public/artifacts/e4c65d91-a470-45cd-b2b3-951cc936dc9a" target="blank">Claude公開中</a></span>
                     </div>
+                    <!-- 1行コメント -->
+                    <p class="project-comment">
+                        💡 SIerの方向性診断
+                    </p>
+                
+                    <!-- リンクエリア -->
+                    <div class="project-links">
+                        <a href="https://claude.ai/public/artifacts/e4c65d91-a470-45cd-b2b3-951cc936dc9a" target="_blank" rel="noopener noreferrer" class="btn-link btn-primary">
+                            🚀 Claude公開中
+                        </a>
+                        <a href="https://note.com/paopaosan_note/n/xxx" target="_blank" rel="noopener noreferrer" class="btn-link btn-note">
+                            📝 noteで解説
+                        </a>
+                    </div>
                 </div>
                 <div class="project-card">
                     <div class="project-title">仕様変更の波</div>
@@ -672,6 +750,16 @@
                     <div class="project-meta">
                         <span class="badge">Android</span>
                         <span class="meta-status">ベータ版公開済み</span>
+                    </div>
+                    <!-- 1行コメント -->
+                    <p class="project-comment">
+                        💡 家にあるお酒を入力でBARのようなメニューを
+                    </p>
+                    <!-- リンクエリア -->
+                    <div class="project-links">
+                        <a href="https://note.com/paopaosan_note/n/n8c547f4e80bf" target="_blank" rel="noopener noreferrer" class="btn-link btn-note">
+                            📝 noteで解説
+                        </a>
                     </div>
                 </div>
                 <div class="project-card">
