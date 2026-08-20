@@ -9,6 +9,9 @@
   gtag('js', new Date());
   gtag('config', 'G-JZ5YTR8SW6');
 </script>
+<!-- Google AdSense -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3109421189276835"
+     crossorigin="anonymous"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>仕様変更の波</title>
@@ -355,6 +358,58 @@
   @media (prefers-reduced-motion: reduce) {
     .title-main, .title-tap-prompt { animation: none; }
   }
+
+  /* ---------- 初回ガイド（チュートリアル） ---------- */
+  #tutorialTip {
+    position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 60;
+    max-width: 460px; margin: 0 auto;
+    background: var(--paper); border: 2px solid var(--amber-deep); border-radius: 10px;
+    padding: 14px 16px; box-shadow: 0 10px 28px rgba(0,0,0,0.3);
+    animation: tutorialSlideUp 0.25s ease;
+  }
+  .tutorial-tip-title {
+    font-weight: 700; font-size: 0.88rem; color: var(--navy-mid);
+    margin-bottom: 5px; display: flex; align-items: center; gap: 6px;
+  }
+  .tutorial-tip-body {
+    font-size: 0.8rem; color: var(--ink-soft); line-height: 1.55;
+    margin-bottom: 10px; white-space: pre-line;
+  }
+  .tutorial-tip-close {
+    background: var(--navy-mid); color: var(--paper); border: none; border-radius: 6px;
+    padding: 7px 16px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
+  }
+  @keyframes tutorialSlideUp {
+    from { transform: translateY(16px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  #firstMoveHint {
+    background: rgba(232,163,61,0.12); border: 1px dashed var(--amber-deep); border-radius: 6px;
+    padding: 8px 12px; margin-bottom: 10px; font-size: 0.74rem; color: var(--amber-deep);
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  #firstMoveHint button {
+    background: none; border: none; color: var(--amber-deep); font-size: 0.9rem;
+    cursor: pointer; line-height: 1; padding: 0 2px; flex-shrink: 0;
+  }
+  .howto-btn {
+    background: transparent; border: 1px solid var(--navy-mid); color: var(--navy-mid);
+    border-radius: 6px; padding: 5px 10px; font-size: 0.72rem; font-weight: 700; cursor: pointer;
+  }
+  .howto-list { padding-left: 1.3em; margin: 4px 0 18px; }
+  .howto-list li { font-size: 0.85rem; color: var(--ink); line-height: 1.7; margin-bottom: 6px; }
+  .note-link-row { text-align: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .note-link-row a {
+    font-size: 0.78rem; color: var(--amber-deep); text-decoration: none;
+    border-bottom: 1px solid var(--amber-deep); padding-bottom: 1px;
+  }
+  .ad-slot-wrap {
+    margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--line);
+    min-height: 90px; display: flex; align-items: center; justify-content: center;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #tutorialTip { animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -428,6 +483,7 @@
   <div class="panel">
     <div class="panel-head">リソース配置</div>
     <div class="panel-body">
+      <div id="firstMoveHint" style="display:none;"></div>
       <div class="cardrow" id="resourceArea"></div>
     </div>
   </div>
@@ -495,9 +551,22 @@
 
 <div class="result-overlay" id="stageSelectOverlay" style="display:none;">
   <div class="result-card">
-    <h2>案件を選ぶ</h2>
-    <div id="chapterProgress" style="font-size:0.74rem;color:var(--amber-deep);font-weight:700;margin-bottom:14px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="margin:0;">案件を選ぶ</h2>
+      <button class="howto-btn" onclick="showHowToPlay()">📖 遊び方</button>
+    </div>
+    <div id="chapterProgress" style="font-size:0.74rem;color:var(--amber-deep);font-weight:700;margin:8px 0 14px;"></div>
     <div id="stageList" class="stage-list"></div>
+    <div class="ad-slot-wrap">
+      <!-- Google AdSense 広告ユニット：data-ad-slotはAdSense管理画面「広告ユニット」で発行されるIDに差し替えてください -->
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-3109421189276835"
+           data-ad-slot="8371939839"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
   </div>
 </div>
 
@@ -508,6 +577,24 @@
 <div class="result-overlay" id="unlockOverlay" style="display:none; z-index:20;">
   <div class="result-card" id="unlockCardInner"></div>
 </div>
+
+<div class="result-overlay" id="howToPlayOverlay" style="display:none; z-index:25;">
+  <div class="result-card">
+    <h2>遊び方</h2>
+    <ol class="howto-list">
+      <li>「開発」と「品質」、<b>両方</b>の目標達成を目指します。</li>
+      <li>APを使って、メンバーの配置・面接（採用）・PM自身の行動を行います。</li>
+      <li>配置したメンバーは、<b>次のターン以降もその場所で働き続けます</b>（毎ターン置き直す必要はありません）。</li>
+      <li>メンバーを働かせている間、毎ターン単価分の予算を消費します。</li>
+      <li>行動フェーズが終わると、仕様変更が発生します。</li>
+      <li>仕様変更への対応（受け入れ・予算交渉・品質削減交渉・納期延長交渉）によって、予算・品質・納期・信頼度などが変化します。仕様変更そのものは避けられません。</li>
+      <li>納期に到達すると、案件の結果とスコアが判定されます。</li>
+    </ol>
+    <button class="restart" onclick="closeHowToPlay()">閉じる</button>
+  </div>
+</div>
+
+<div id="tutorialTip" style="display:none;"></div>
 
 <script>
 // ---------- GA4イベント計測（共通関数） ----------
@@ -1156,6 +1243,13 @@ function moveResource(id, zone) {
   r.zone = zone;
   state.ap -= apCost;
   addLog(state.turn, `${r.name} を${zone}に配置した。（AP-${apCost}）`);
+  if (zone === '開発' || zone === '品質') {
+    showTutorialTip(
+      'placement',
+      'メンバーを配置',
+      'メンバーには「開発」と「品質」の能力があります。得意な仕事を見ながら配置してみましょう（配置にはAP1消費）。\n一度配置したメンバーは、次のターン以降もその場所で働き続けます。毎ターン置き直す必要はありません。'
+    );
+  }
   render();
 }
 
@@ -1439,6 +1533,11 @@ function revealSpecCard() {
     state.hiddenTriggered = false;
   }
   addLog(state.turn, `行動フェーズ終了。仕様変更カード「${state.currentSpecCard.name}」が判明した。`);
+  showTutorialTip(
+    'specChange',
+    '仕様変更が発生！',
+    '案件には仕様変更がつきものです。仕様変更そのものは避けられません。\n「受け入れ」「予算交渉」「品質削減交渉」「納期延長交渉」から、どう乗り切るかを選びます。\n対応によって、予算・品質・納期・信頼度への影響が変わります。'
+  );
   render();
 }
 
@@ -1950,6 +2049,12 @@ document.getElementById('btnEndTurn').onclick = () => {
   // ①まず行動フェーズの結果（生産処理・予算消費）を精算する
   settleProduction();
 
+  showTutorialTip(
+    'production',
+    'メンバーが仕事をしました',
+    'ターン終了時、配置されているメンバーが自動で仕事をします。\n開発・品質の進捗が増え、メンバーの単価分だけ予算を消費します。'
+  );
+
   // CPU（競合企業）のターンも同時進行（CPU側も生産→カード対応の順で処理される）
   // 納期はプレイヤー・CPUそれぞれ個別管理のため、既に自分の案件が終わっているCPUはスキップする
   if (state.competitive) {
@@ -2071,6 +2176,9 @@ function showResult() {
     ${cpuResultHtml}
     <button class="restart" onclick="restartGame()">もう一度プレイする</button>
     <button class="restart" style="background:transparent;color:var(--navy-mid);border:1px solid var(--navy-mid);margin-top:8px;" onclick="showStageSelect()">別の案件を選ぶ</button>
+    <div class="note-link-row">
+      <a href="https://note.com/paopaosan_note/n/ne5133cab5bc7" target="_blank" rel="noopener noreferrer" onclick="trackGameEvent('note_click', {})">プロジェクト管理について学びたい方はこちら →</a>
+    </div>
   `;
   overlay.style.display = 'flex';
 }
@@ -2080,7 +2188,11 @@ function restartGame() {
   const preset = stagePresets.find(p => p.id === state.stageId) || stagePresets[0];
   trackGameEvent('game_retry', { stage_id: preset.id, competitive: !!preset.competitive });
   state = freshState(preset);
+  state.tutorialActive = false; // リトライ時はチュートリアルを再表示しない（初回プレイのみの仕様）
+  state.tutorialShown = {};
   document.getElementById('hdrStage').textContent = preset.name;
+  document.getElementById('tutorialTip').style.display = 'none';
+  document.getElementById('firstMoveHint').style.display = 'none';
   render();
 }
 window.restartGame = restartGame;
@@ -2119,6 +2231,64 @@ async function storageSetRaw(key, value) {
   memoryStorageFallback[key] = value;
   return true;
 }
+
+// ---------- 初回ガイド（チュートリアル） ----------
+// 1-1の初回プレイ時のみ、基本ループ（配置→ターン終了→仕様変更）を自然に理解できるよう
+// 5つの短いヒントを該当操作のタイミングで表示する。既存の永続化方式（window.storage→
+// localStorage→メモリ）と同じ仕組みで「一度見たか」を保持し、以降は自動表示しない。
+async function isTutorialSeen() {
+  const raw = await storageGetRaw('tutorial:seen');
+  return raw === 'true';
+}
+
+async function markTutorialSeen() {
+  try {
+    await storageSetRaw('tutorial:seen', 'true');
+  } catch (e) { /* 保存に失敗してもチュートリアル表示自体は継続してよいため無視 */ }
+}
+
+function showTutorialTip(key, title, body) {
+  if (!state.tutorialActive || state.tutorialShown[key]) return;
+  state.tutorialShown[key] = true;
+  const el = document.getElementById('tutorialTip');
+  el.innerHTML = `
+    <div class="tutorial-tip-title">💡 ${title}</div>
+    <div class="tutorial-tip-body">${body}</div>
+    <button class="tutorial-tip-close" onclick="dismissTutorialTip()">わかった</button>
+  `;
+  el.style.display = 'block';
+}
+
+function dismissTutorialTip() {
+  document.getElementById('tutorialTip').style.display = 'none';
+}
+window.dismissTutorialTip = dismissTutorialTip;
+
+function showFirstMoveHintIfNeeded() {
+  if (!state.tutorialActive || state.tutorialShown.firstMoveHint) return;
+  state.tutorialShown.firstMoveHint = true;
+  const el = document.getElementById('firstMoveHint');
+  el.innerHTML = `
+    <span>開発が得意なメンバーを「開発」、品質が得意なメンバーを「品質」に配置するところから始めるのがおすすめです。</span>
+    <button onclick="dismissFirstMoveHint()">×</button>
+  `;
+  el.style.display = 'flex';
+}
+
+function dismissFirstMoveHint() {
+  document.getElementById('firstMoveHint').style.display = 'none';
+}
+window.dismissFirstMoveHint = dismissFirstMoveHint;
+
+function showHowToPlay() {
+  document.getElementById('howToPlayOverlay').style.display = 'flex';
+}
+window.showHowToPlay = showHowToPlay;
+
+function closeHowToPlay() {
+  document.getElementById('howToPlayOverlay').style.display = 'none';
+}
+window.closeHowToPlay = closeHowToPlay;
 
 async function saveProgress(stageId, stars, score, cleared) {
   let existing = null;
@@ -2278,10 +2448,29 @@ function startStage(id) {
   const preset = stagePresets.find(p => p.id === id);
   if (!preset) return;
   state = freshState(preset);
+  state.tutorialActive = false;
+  state.tutorialShown = {};
   trackGameEvent('game_start', { stage_id: preset.id, competitive: !!preset.competitive });
   document.getElementById('hdrStage').textContent = preset.name;
   document.getElementById('stageSelectOverlay').style.display = 'none';
+  document.getElementById('tutorialTip').style.display = 'none';
+  document.getElementById('firstMoveHint').style.display = 'none';
   render();
+
+  // 1-1の初回プレイ時のみ、基本ループを理解できる簡易ガイドを表示する
+  if (id === '1-1') {
+    isTutorialSeen().then(seen => {
+      if (seen || state.stageId !== '1-1') return; // 既に見ている、または既にステージが切り替わっていれば何もしない
+      state.tutorialActive = true;
+      markTutorialSeen(); // 一度でも起動したら、以降は自動表示しない（「遊び方」から再確認は可能）
+      showTutorialTip(
+        'start',
+        'はじめての案件',
+        'あなたはこの案件のPMです。\n納期までに「開発」と「品質」、両方の目標達成を目指します。\nまずは画面上部の進捗を見ながら、手持ちのメンバーを配置してみましょう。'
+      );
+      showFirstMoveHintIfNeeded();
+    });
+  }
 }
 window.startStage = startStage;
 
