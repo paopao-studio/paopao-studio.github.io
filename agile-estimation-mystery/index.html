@@ -2595,10 +2595,10 @@ function registerFestivalCase() {
     constraints: ["開催日は固定で、受付の後日やり直しはできない", "既存のチケット・引換・決済サービスを利用する", "会場通信設備と気象判断は別担当", "当日運営に必要な範囲を優先し、来年度施策は対象外"],
     poIntroductions: { impatient: "開場日まで時間がありません。来場者の列が止まる条件から、手短に確認してください。", cautious: "現場・店舗・払戻し担当で条件を合わせたいです。中止や通信断の境界を一つずつ確認しましょう。" },
     teamConversations: {
-      npc_mediator_ojisan: { po: { text: "今回は主催者の運営責任者です。開催前で忙しいですが、現場担当と決済担当が同じ条件を使える質問は必要だと思います。" }, smalltalk: { text: "列の誘導は人の仕事でも、その人へ何を知らせるかはシステムの範囲になりますね。" } },
-      npc_ai_newbie: { po: { text: "主催者は既存サービスを使いたいそうです。ただ、標準機能が当日の例外まで保証するかはまだ確認できていません。" }, smalltalk: { text: "『予約済みだから混まない』とAIが答えても、全員が同じ開場時刻に来れば列になりますよね。" } },
-      npc_pmbok_master: { po: { text: "現場・店舗・決済それぞれに決定権があります。主催者へ、どの条件が確定済みかを聞くべきです。" }, smalltalk: { text: "一日開催では延期できない処理と、翌日照合できる処理を分けることが工程表にも効きます。" } },
-      npc_lone_engineer: { po: { text: "初対面の運営責任者です。端末の状態と外部サービスの結果がずれる条件を聞きたいですね。" }, smalltalk: { text: "通信が切れても画面は動かせます。ただ、別の入口で同じ券が使われたかは画面だけでは分かりません。" } }
+      npc_mediator_ojisan: { po: { byPersona: { impatient: { text: "顔合わせでは、世間話が続くと腕時計を見ていましたね。こちらが要点を一つに絞ると、すぐ返事をくれました。人の話を聞かない方、という印象ではありません。" }, cautious: { text: "顔合わせでは、一人ずつ名前と役割を確かめていました。場が和らぐと、ご自身から気がかりなことを話してくれましたね。納得してから約束したい方に見えました。" } } }, smalltalk: { text: "列の誘導は人の仕事でも、その人へ何を知らせるかはシステムの範囲になりますね。" } },
+      npc_ai_newbie: { po: { byPersona: { impatient: { text: "資料を送ったら、最初のまとめにだけ、すぐ返信が来ました。細かなページは後で読むそうです。「まず何が変わるかが知りたい」って言っていました。" }, cautious: { text: "資料には、分かっていることと、まだ分からないことを分けて書き込んでくれました。新しい案にも興味はあるみたいですけど、曖昧なまま「大丈夫です」とは言わないんですね。" } } }, smalltalk: { text: "『予約済みだから混まない』とAIが答えても、全員が同じ開場時刻に来れば列になりますよね。" } },
+      npc_pmbok_master: { po: { byPersona: { impatient: { text: "前の打ち合わせでは、決められる話はその場で決め、残りには担当と期限を付けていました。議題が増えると「今日決めるのはどれですか」と区切る方です。" }, cautious: { text: "以前の打ち合わせでは、反対意見も最後まで聞いて、合意した内容を読み返していました。予定より少し長くなっても、認識が揃ったかを確かめてから終える方でした。" } } }, smalltalk: { text: "一日開催では延期できない処理と、翌日照合できる処理を分けることが工程表にも効きます。" } },
+      npc_lone_engineer: { po: { byPersona: { impatient: { text: "技術の説明を長くしたら、「それで使う人には何が変わりますか」と聞かれました。短い図で説明し直すと話が早かったです。ただ、できないことまで急いで約束しろとは言われませんでした。" }, cautious: { text: "この前のデモでは、すぐに評価を決めず、私の説明が終わるまで待っていました。分からない所はそのまま聞き返してくれます。少し話してからの方が、質問も出やすい方だと思います。" } } }, smalltalk: { text: "通信が切れても画面は動かせます。ただ、別の入口で同じ券が使われたかは画面だけでは分かりません。" } }
     },
     requirements, topicRefs
   });
@@ -3941,7 +3941,10 @@ function logMessage(speaker, text, kind, npcId) {
 }
 
 function issueAwareTeamConversation(npcId, type) {
-  if (type !== "requirement") return mvpState.project.teamConversations?.[npcId]?.[type] || TEAM_CONVERSATIONS[npcId][type];
+  if (type !== "requirement") {
+    const item = mvpState.project.teamConversations?.[npcId]?.[type] || TEAM_CONVERSATIONS[npcId][type];
+    return type === "po" ? item.byPersona?.[mvpState.poPersona.id] || item : item;
+  }
   const perspective = mvpState.teamPerspectives[npcId];
   const round = mvpState.topicRounds.find(r => r.topic.id === perspective.topicId);
   if (!round) return TEAM_CONVERSATIONS[npcId][type];
