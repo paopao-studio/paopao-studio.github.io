@@ -2604,6 +2604,230 @@ function registerFestivalCase() {
   });
 }
 
+/* Two independent scenarios. IDs and traits are isolated from the saved three cases. */
+const ADDITIONAL_CASE_DEFINITIONS = [
+  {
+    id: "warehouse_picking_support", prefix: "warehouse", title: "倉庫のピッキング支援",
+    overview: "一つの常温倉庫で、指示の受領から棚での採取、欠品判断、箱詰め確認までを携帯端末で支援する案件です。",
+    background: "既存WMSが注文と在庫予約を管理しています。紙の指示書を携帯端末に置き換えますが、一方通行の通路、同時作業、欠品、通信が届かない棚での運用が残ります。物理的に何を確認でき、いつ出荷を確定できるかを区切ります。",
+    objectives: ["現場の通行条件に合った採取順を示す", "承認されていない代替品や異なる注文の箱を確定させない", "通信復旧と担当交代でも未確定の作業を取り違えない"],
+    constraints: ["対象は既存の常温倉庫一拠点。棚配置と通行規則は現場が提供", "WMS・商品マスター・貸与端末・プリンタを利用する", "搬送ロボット、RFID、画像検査、WMS全体の置換は対象外", "運送会社の配送経路や倉庫新設は別案件"],
+    poIntroductions: { impatient: "出荷前の打ち合わせなので、判断が必要なところから短くお願いします。", cautious: "作業者が困る場面を一緒に整理したいです。まず、こちらの説明で分かりにくいところはありませんか。" },
+    poObservations: {
+      npc_mediator_ojisan: { impatient: "朝の顔合わせでは、挨拶の途中でも作業時計を見ていました。急いでいる時でも、要点が伝わるとその場で返事をくれる方でしたね。", cautious: "顔合わせでは、新しく入った作業者にも名前を尋ねていました。少し打ち解けると、言いにくかった失敗の話も聞いてくれたそうです。" },
+      npc_ai_newbie: { impatient: "長い資料より、一枚にまとめた比較表へ先に返事が来ました。新しい道具にも前向きですが、説明が長いと先に結論を見たくなるみたいです。", cautious: "資料の『たぶん大丈夫』に印を付けて返してくれました。新しい道具を嫌うわけではなく、確かめたことと予想を分けたい方なんですね。" },
+      npc_pmbok_master: { impatient: "前の会議では、今日決められることを先に決め、残りには担当と期限を付けていました。意見が違っても、話を延ばすより次の行動を決める方です。", cautious: "前の会議では、静かだった人にも意見を尋ねていました。全員の理解を読み返してから合意するので、返事は遅めでも約束した内容は明確でした。" },
+      npc_lone_engineer: { impatient: "仕組みを詳しく話し始めたら、まず使う人に見える違いを聞かれました。短い実演にはよく反応していましたが、無理な約束を迫る方ではありません。", cautious: "実演で私が言い直しても、説明が終わるまで待ってくれました。分からない所をそのまま尋ねる方で、最初に少し話した後は質問も増えました。" }
+    },
+    smalltalk: ["近道に見えても、台車で通れない通路があります。現場の歩き方は図だけでは分かりませんね。", "作業が速い人ほど、欠品の連絡をきちんと残していました。速さと省略は別なんですね。", "箱を閉じる前の一呼吸が、後の大きな手戻りを減らすこともあります。", "通信が切れても画面は動きます。ただ、その画面だけで中央の在庫まで確定したとは言えません。"],
+    topics: [
+      {
+        key: "route", name: "採取順と現場動線", viewpoint: "UX_WORKFLOW", coreName: "通行条件を踏まえた採取順", minorName: "作業開始通知",
+        description: "商品順の表示と、実際に通れる順路の違いを確認する",
+        summary: "WMSの採取指示を端末に表示し、棚を順に案内する。", detail: "棚配置と現場の通行規則を利用。案内順の決め方は現場と確認する。",
+        signals: ["複数の作業ゾーンをまたぐ採取指示", "台車の通行方向は現場規則に従う", "開始通知は既存の定型文を使用"],
+        entry: "指示には棚番があります。棚番を並べるだけで作業できるか、通路と台車の条件も含めて確認します。",
+        minorTruth: "開始通知は既存の端末配信へ定型文を送ります。個人ごとの配信最適化や新しい連絡基盤は作りません。",
+        minorUnder: "定型文なので通知の接続確認も不要", minorOver: "個人別の連絡基盤を新設する", minorFocus: ["作業者に開始を伝える担当", "既存通知の定型設定", "開始通知と独自連絡基盤の区別", "配信接続と案内ロジックの区別"],
+        minorQuestion: "開始通知は作業者ごとに独自の仕組みを作りますか", noiseQuestion: "搬送ロボットの経路制御も作りますか", noiseAnswer: "搬送ロボットは導入しません。既存の人と台車の通行規則を使います。",
+        issues: [{ key: "one_way", factKey: "routePolicy", low: "SORT_BY_SHELF", correct: "ZONE_ONE_WAY_ROUTE", high: "GLOBAL_REALTIME_OPTIMIZER", subject: "一方通行とゾーンの採取順", question: "棚番順なら、台車はどの通路も通れますか", truth: "通路には一方通行と台車禁止区間があります。提供されるゾーン順と通行表から案内し、通れない順序を出さない確認を含めます。倉庫全体の動的な最短経路最適化は対象外です。", under: "棚番順に並べればそのまま移動できる", over: "全台車の位置を常時追跡して全体最適化する", scope: "ゾーン順・一方通行・台車禁止区間を反映した案内と確認", focus: ["現場が決めた通行規則の合意", "棚番ソートと現場順路の差", "固定通行表と全体最適化の区別", "通れない順序を案内しない境界"], reeval: ["現場任せの後調整ではなく、通行規則を案内に反映する範囲を含めます。", "棚番ソートだけでは足りません。通行表との照合を追加します。", "常時の全体最適化は外し、提供されたゾーン順と通行条件に絞ります。", "表示だけでなく、台車が通れない並びを出さない確認を含めます。"] }]
+      },
+      {
+        key: "shortage", name: "欠品と代替・部分出荷", viewpoint: "UX_WORKFLOW", coreName: "欠品時の注文判断", minorName: "欠品連絡票",
+        description: "似た商品への置換と、注文を分けて出荷する判断を切り分ける",
+        summary: "採取できない数量を記録し、必要に応じて注文担当へ連絡する。", detail: "代替品と部分出荷の可否は注文条件による。現場の判断範囲を確認する。",
+        signals: ["欠品時は注文条件を踏襲予定", "代替品と残数量の扱いは注文担当へ確認", "連絡票は既存の共通項目を使用"],
+        entry: "欠品は数量不足だけでなく、何を出してよいかの問題です。代替の承認と部分出荷の許可は別の条件です。",
+        otherPremise: "代替品の承認と、元の注文の部分出荷可否を分けて確認する必要があります。",
+        minorTruth: "欠品連絡票は注文ID・SKU・不足数量の共通様式です。取引先ごとの新しい交渉ワークフローは対象外です。",
+        minorUnder: "不足数量を書けば連絡票の照合確認も不要", minorOver: "取引先ごとの交渉システムを新設する", minorFocus: ["注文担当が読む連絡項目", "共通様式の設定", "共通連絡と個別交渉基盤の区別", "注文IDと不足数量の接続確認"],
+        minorQuestion: "欠品連絡票は取引先ごとに別の様式ですか", noiseQuestion: "商品の仕入先選定も自動化しますか", noiseAnswer: "仕入先選定は調達部門の業務です。今回の範囲は確定済み注文の採取支援です。",
+        issues: [
+          { key: "substitute", factKey: "substitutionPolicy", low: "PICK_SIMILAR_ITEM", correct: "APPROVED_ALTERNATIVES_ONLY", high: "ALL_SUBSTITUTES_MANUAL_APPROVAL", subject: "承認済み代替品と未承認品の区別", question: "似た商品なら、現場で代替してよいですか", truth: "注文ごとに承認済みの代替SKUが渡されます。その一覧にある商品だけを選べます。未承認品は保留して注文担当へ戻します。承認済み品まで毎回新しい稟議に回す必要はありません。", under: "同じ用途なら現場の判断で置き換えられる", over: "承認済み代替品にも毎回正式稟議を追加する", scope: "注文別の承認済み代替SKUの照合と、未承認品の保留", focus: ["現場と注文担当の判断権限", "商品類似検索と承認リストの差", "承認済み条件と追加稟議の区別", "注文別代替SKUと保留状態の境界"], reeval: ["似ているから現場で決める範囲ではありません。承認リストとの照合を入れます。", "類似商品の検索だけで代替を確定しないよう、注文別の許可を追加します。", "承認済み品の新たな稟議は外し、未承認品の保留に絞ります。", "SKUが存在するだけでなく、その注文で許された代替かを照合します。"] },
+          { key: "partial", factKey: "partialShipment", low: "SHIP_ANY_AVAILABLE", correct: "ORDER_PERMISSION_AND_REMAINDER", high: "CANCEL_ALL_SHORT_ORDERS", subject: "部分出荷の許可と残数量の引継ぎ", question: "採取できた分は、どの注文でも先に出荷できますか", truth: "部分出荷可の注文だけ先に進めます。残数量はWMSへ引き継ぎ、不可の注文は全体を保留します。欠品した注文をすべて取り消す運用ではありません。", under: "採取できた数量は許可を見ず先に出せる", over: "欠品した注文はすべて取消処理へ回す", scope: "注文の部分出荷可否・残数量の引継ぎ・不可時の保留", focus: ["注文担当と現場が共有する出荷可否", "標準の部分完了と注文別条件の差", "許可判定と全注文取消の区別", "採取済み数量と残数量の状態分離"], reeval: ["数量がある分だけ出すのではなく、注文の許可と保留を含めます。", "標準の部分完了だけでなく、注文別可否と残数量連携を追加します。", "全注文の取消は外し、許可された分の出荷と保留へ絞ります。", "採取済みと未処理の数量を分け、残りを失わない連携を含めます。"] }
+        ]
+      },
+      {
+        key: "packing", name: "箱と注文の出荷照合", viewpoint: "DATA_INTEGRATION", coreName: "箱詰め時の注文照合", minorName: "梱包票の印刷",
+        description: "商品を読めたことと、正しい注文の箱に入れたことを区別する",
+        summary: "まとめて採取した商品を注文ごとの箱へ入れ、出荷数量を確定する。", detail: "商品の読取と箱の識別を利用。差異時の確定条件は梱包担当と確認する。",
+        signals: ["複数注文をまとめて採取", "箱と商品をバーコードで識別予定", "梱包票は既存プリンタと様式を使用"],
+        entry: "同じSKUが複数の注文に入ります。商品を読めただけでは、どの箱の注文へ割り当てたかが決まりません。",
+        minorTruth: "梱包票は既存プリンタに共通様式で出します。運送会社ごとの新しい帳票設計は今回追加しません。",
+        minorUnder: "既存様式なので印刷接続の確認も不要", minorOver: "運送会社別の帳票設計を新設する", minorFocus: ["梱包担当が確認する印刷項目", "共通様式と既存プリンタ", "梱包票と配送帳票の区別", "印刷接続と数量照合の区別"],
+        minorQuestion: "梱包票は運送会社ごとに新設しますか", noiseQuestion: "RFIDと画像検査を全商品へ導入しますか", noiseAnswer: "RFIDと画像検査は導入しません。読取情報と作業者が確認した数量で照合します。実物そのものを自動鑑定する仕組みではありません。",
+        issues: [{ key: "box", factKey: "packingCheck", low: "SKU_MATCH_ONLY", correct: "BOX_ORDER_SKU_QUANTITY", high: "RFID_IMAGE_INSPECTION", subject: "箱ID・注文・SKU・数量の照合", question: "商品バーコードが合えば、その箱の出荷を確定できますか", truth: "箱IDを注文へ結び付け、期待するSKUと確認数量を照合します。差異があればその箱の確定を止めます。商品を読めただけで別注文の箱を確定しません。全商品のRFID化や画像検査は対象外です。", under: "SKUが存在すれば正しい箱だと判断できる", over: "全商品にRFIDと画像検査を追加する", scope: "箱IDと注文の対応、SKU・数量の照合、差異時の確定停止", focus: ["梱包担当と出荷担当の差異時の扱い", "商品読取と注文別照合の差", "既存読取確認と全商品検査の区別", "箱・注文・SKU・数量の対応関係"], reeval: ["箱違いは後の連絡調整では済みません。差異時に確定を止める範囲を含めます。", "商品読取だけでは足りません。箱と注文の照合を追加します。", "全商品の新しい検査設備は外し、既存バーコードと確認数量へ絞ります。", "商品マスターの一致と、箱の注文の一致を分けて検証します。"] }]
+      },
+      {
+        key: "offline", name: "通信断中の作業と復旧", viewpoint: "TECH_PLATFORM", coreName: "仮記録と出荷確定の分離", minorName: "貸与端末の初期設定",
+        description: "端末で続けられる採取と、中央で確定する在庫更新を区切る",
+        summary: "棚で採取結果を記録し、WMSへ送信する。", detail: "通信が届かない棚がある。仮記録と確定の責任を確認する。",
+        signals: ["棚で最大30分の通信断を想定", "WMSが在庫予約の正本を管理", "端末は既存の貸与機と管理設定を使用"],
+        entry: "通信断でも指示の参照と仮記録はできます。中央へ受理されていない記録で、在庫や出荷まで確定するかは別です。",
+        minorTruth: "貸与端末へ既存の管理設定を一括適用します。私物端末対応や独自MDM基盤の新設はありません。",
+        minorUnder: "貸与機なので設定適用と読取確認も不要", minorOver: "私物端末用の独自MDMを新設する", minorFocus: ["貸与端末を渡す担当と確認時点", "既存管理設定の適用", "貸与機設定と新MDMの区別", "設定配布と仮記録保存の区別"],
+        minorQuestion: "私物端末用の管理基盤も作りますか", noiseQuestion: "倉庫の無線設備を全面更新しますか", noiseAnswer: "無線設備の更新は別担当です。今回は既存設備での仮記録と確定の扱いを実装します。",
+        issues: [{ key: "provisional", factKey: "offlineConfirmation", low: "ONLINE_ONLY", correct: "LOCAL_DRAFT_SERVER_CONFIRM", high: "FULL_LOCAL_WMS", subject: "30分の仮記録とWMS受理後の確定", question: "通信が切れたまま、在庫更新と出荷を確定できますか", truth: "指示参照と採取の仮記録は最大30分続けます。作業IDと記録IDを付けて復旧後に送信し、WMSの受理と現行予約の確認後に確定します。通信断中の出荷確定はしません。端末へWMS全体を複製する必要はありません。", under: "通信断では全作業を止めるだけでよい", over: "端末にWMS全機能と予約正本を複製する", scope: "30分の仮記録・再送・受理確認と、未受理時の確定停止", focus: ["作業者と出荷担当が共有する未確定状態", "標準オンライン登録と仮記録の差", "限定的な仮記録とWMS複製の区別", "端末記録と中央予約の確定境界"], reeval: ["全作業停止だけではなく、未確定と分かる仮記録の運用を含めます。", "オンライン登録に加え、記録ID付きの保存と再送を追加します。", "WMSの複製は外し、30分の仮記録と受理確認に絞ります。", "画面で読めたことと中央が受理したことを分け、確定を止める条件を入れます。"] }]
+      },
+      {
+        key: "handover", name: "担当交代と作業権限", viewpoint: "SECURITY_ACCESS", coreName: "採取指示の担当と引継ぎ", minorName: "シフト連絡の表示",
+        description: "ログインできることと、その作業を引き継げることを分ける",
+        summary: "作業者へ採取指示を割り当て、交代時には残作業を引き継ぐ。", detail: "臨時作業者も利用。担当変更の権限と未確定記録の扱いを確認する。",
+        signals: ["臨時作業者を含むシフト運用", "担当ゾーンと採取指示の割当を利用", "シフト連絡は既存の掲示形式を使用"],
+        entry: "指示を一覧で見られても、誰でも担当を変えてよいわけではありません。交代後の旧端末からの確定も区切ります。",
+        minorTruth: "シフト連絡は既存の共通掲示を表示します。勤務計画や給与計算システムは作りません。",
+        minorUnder: "掲示を出すだけなので表示確認も不要", minorOver: "勤務計画と給与計算を新設する", minorFocus: ["交代連絡を確認する相手", "既存掲示の表示設定", "共通掲示と人事基盤の区別", "連絡表示と担当権限の区別"],
+        minorQuestion: "勤務計画と給与計算も作りますか", noiseQuestion: "生体認証の本人確認基盤も新設しますか", noiseAnswer: "既存の作業者IDを使います。生体認証基盤は今回の対象外です。",
+        issues: [{ key: "owner", factKey: "handoverPolicy", low: "ANY_LOGGED_IN_WORKER", correct: "LEADER_TRANSFER_CURRENT_OWNER", high: "APPROVAL_EVERY_SCAN", subject: "責任者の担当変更と旧担当の確定制限", question: "ログインできれば、別の人の採取指示も引き継げますか", truth: "担当ゾーンとシフトを確認し、責任者だけが採取指示の担当を変更します。変更後は新担当と指示の版を確認して確定し、旧担当の未確定記録は照合へ戻します。読取のたびに新しい承認を取る運用ではありません。", under: "ログインできれば誰でも担当変更と確定ができる", over: "毎回の読取に責任者の承認を追加する", scope: "ゾーン・シフト・担当変更権限と、指示版を使った旧担当の確定制限", focus: ["作業者と責任者の引継ぎ判断", "共通ログインと担当権限の差", "引継ぎ承認と読取ごとの承認の区別", "担当ID・指示版・未確定記録の対応"], reeval: ["交代の口頭調整だけでは足りません。責任者の変更と旧担当の制限を含めます。", "共通ログインに加え、現在の担当と指示版の確認を追加します。", "読取ごとの承認は外し、担当変更時の統制に絞ります。", "担当が変わった後の旧端末の記録を、そのまま確定しない境界を入れます。"] }]
+      }
+    ]
+  },
+  {
+    id: "online_course_completion", prefix: "course", title: "オンライン講座の受講・修了管理",
+    overview: "法人研修の動画講座で、受講資格・途中再開・視聴記録・テスト結果から修了を管理する案件です。",
+    background: "既存の動画配信、本人認証、確認テストを使います。受講者は複数端末を切り替え、動画を戻したり途中でやめたりします。画面で最後まで進んだことと、契約内で学習条件を満たしたことを区別し、教材変更後も過去の修了履歴を説明できるようにします。",
+    objectives: ["合意された修了条件を同じ基準で判定する", "端末を替えても途中再開と記録を取り違えない", "受講期限と教材版を管理し、既存の修了履歴を保つ"],
+    constraints: ["対象は録画済みの法人研修。既存の配信・認証・確認テストを利用", "オフライン動画配信、ライブ授業、監督付き試験は対象外", "視聴記録は受信した再生情報であり、本人の注意や理解を直接証明しない", "公的資格の認定や新しい決済・本人確認基盤は作らない"],
+    poIntroductions: { impatient: "受講開始に間に合わせたいので、決める必要がある点からお願いします。", cautious: "受講者と講師で説明が違わないようにしたいです。お互いの前提を確認しながら進めましょう。" },
+    poObservations: {
+      npc_mediator_ojisan: { impatient: "顔合わせでは、雑談が長くなると予定表を見ていました。でも話が一つに絞られると、すぐ判断してくれましたね。冷たい方という感じではありません。", cautious: "初めの面談で、講師と受講者の話をそれぞれ聞いていました。最初に少し打ち解けると、ご自身の迷っている点も話してくれました。" },
+      npc_ai_newbie: { impatient: "送った資料では、冒頭の要約にいちばん早く返信が来ました。新しい案も面白がる方ですが、長い説明より違いが見えるものを好むようです。", cautious: "資料を丁寧に読んで、事実と予想を別の色で囲んでいました。新しい案にも質問が出るので、反対したいというより納得してから進めたい方だと思います。" },
+      npc_pmbok_master: { impatient: "前の打ち合わせでは、その場で決められることを先に片付けていました。後で調べる話は担当と期限を決めて、同じ話を繰り返さない方です。", cautious: "以前の打ち合わせでは、言葉の意味が人によって違わないかを読み返していました。結論を急ぐより、同じ説明ができるかを確かめてから合意する方でした。" },
+      npc_lone_engineer: { impatient: "細かな仕組みを話した時に、まず受講者の画面で何が変わるのかを聞かれました。短い実演だと話が早いです。分からないことまで即答しろとは言われませんでした。", cautious: "デモで説明が少し詰まっても待ってくれました。分からない所はそのまま聞き返してくれる方です。少し会話してからの方が疑問を出しやすいようでした。" }
+    },
+    smalltalk: ["動画を最後まで開いた人と、内容を理解した人は同じとは限りませんね。", "二倍速で見たら時間は短くなりますが、記録の数え方まで勝手に半分にできるわけではないですね。", "修了証を出した後に教材が変わることもあります。過去の判断を説明できる記録が大切です。", "二台の画面がどちらも『最新』と言っていても、中央が受け付けた版は一つずつ確かめる必要があります。"],
+    topics: [
+      {
+        key: "completion", name: "修了条件と確認テスト", viewpoint: "UX_WORKFLOW", coreName: "講座の修了判定", minorName: "修了案内の配信",
+        description: "動画の終端到達、視聴範囲、テスト合格の条件を区別する",
+        summary: "動画と確認テストの結果から修了を表示する。", detail: "講師が指定する条件を使用。視聴とテストのどちらを満たすかは確認する。",
+        signals: ["講師が修了条件を決定", "視聴記録と確認テストを利用予定", "修了案内は共通テンプレートを使用"],
+        entry: "動画を最後まで進めただけで修了とは限りません。視聴の範囲とテスト結果は別の条件です。",
+        otherPremise: "視聴範囲の条件と、確認テストの合格条件を分けて確認する必要があります。",
+        minorTruth: "修了案内は既存の共通テンプレートで一度配信します。受講者別の文面生成や新しい配信基盤は対象外です。",
+        minorUnder: "共通文面なので配信結果の確認も不要", minorOver: "受講者別の文面生成基盤を新設する", minorFocus: ["案内を受け取る相手と配信時点", "共通テンプレートの設定", "定型案内と個別文面生成の区別", "配信接続と修了判定の区別"],
+        minorQuestion: "修了案内を受講者ごとに新しく作りますか", noiseQuestion: "公的資格の認定制度も作りますか", noiseAnswer: "これは法人内の研修の修了管理です。公的資格の認定制度は作りません。",
+        issues: [
+          { key: "coverage", factKey: "completionCoverage", low: "REACH_VIDEO_END", correct: "REQUIRED_LESSONS_90_PERCENT", high: "MANUAL_ATTENTION_PROOF", subject: "必須動画の重複しない視聴範囲", question: "動画の最後へ進めれば視聴条件を満たしますか", truth: "必須動画ごとに、重複しない再生区間が90%以上必要です。飛ばした区間は数えません。任意動画は判定対象外です。この記録だけで本人の注意や理解を証明するものではなく、全員の手動面接は追加しません。", under: "最後の位置へ到達すれば視聴済みになる", over: "全受講者へ手動面接で注意と理解を証明させる", scope: "必須動画の指定と、重複しない再生区間90%の判定", focus: ["講師と受講者に説明する視聴条件", "終端イベントと区間集計の差", "記録上の条件と手動面接の区別", "シークした区間と再生した区間の境界"], reeval: ["最後まで進んだことだけで合意しません。必須動画の区間条件を含めます。", "終端イベントだけでは足りません。重複しない区間の判定を追加します。", "全員の手動面接は外し、合意された記録上の条件に絞ります。", "再生位置と再生した区間を区別し、シークで未視聴を埋めない判定を入れます。"] },
+          { key: "test", factKey: "completionTest", low: "WATCHING_ONLY", correct: "QUIZ_80_WITH_RETRY", high: "PROCTORED_EXAM_SYSTEM", subject: "確認テスト80点と再受験", question: "動画の視聴条件だけで修了にできますか", truth: "視聴条件に加え、既存の確認テストで80点以上が必要です。再受験を認め、合格済みの試行を参照します。受験回数の平均で合否を変えず、監督付き試験の新設もしません。", under: "動画条件が満たされればテスト結果は要らない", over: "監督付き試験と本人監視の基盤を新設する", scope: "既存テストの合格済み試行と視聴条件を合わせた判定", focus: ["講師が定めた視聴とテストの関係", "視聴完了機能と既存テスト連携の差", "既存の合格判定と監督付き試験の区別", "再受験の試行IDと合格済み結果の対応"], reeval: ["視聴だけの合意にせず、確認テストの合格を判定へ含めます。", "標準の動画完了に加え、合格済み試行の連携を追加します。", "監督付き試験は外し、既存の80点合格条件に絞ります。", "試行の平均ではなく、合格済みの試行IDを使う境界を入れます。"] }
+        ]
+      },
+      {
+        key: "resume", name: "途中再開と端末切替", viewpoint: "TECH_PLATFORM", coreName: "再開位置の保存と更新", minorName: "共通プレイヤーの表示設定",
+        description: "最も先の位置と、受講者が最後に選んだ再開位置を分ける",
+        summary: "中断した動画を端末を替えて再開できるようにする。", detail: "既存プレイヤーを利用。複数端末から届く更新の採用条件を確認する。",
+        signals: ["受講者がPCと携帯端末を切り替える", "動画を戻して見直す操作も想定", "既存プレイヤーと共通の操作表示を使用"],
+        entry: "先まで見た後で戻る受講者もいます。最も大きな再生位置を保存すると、その見直し位置を失います。",
+        minorTruth: "再開ボタンなどは既存プレイヤーの共通表示を設定します。独自の動画プレイヤーや変換基盤は作りません。",
+        minorUnder: "既存プレイヤーなので表示設定の確認も不要", minorOver: "独自プレイヤーと動画変換基盤を新設する", minorFocus: ["受講者が使う再開ボタン", "共通表示の設定", "表示設定とプレイヤー新設の区別", "操作表示と再開記録の区別"],
+        minorQuestion: "独自の動画プレイヤーも開発しますか", noiseQuestion: "オフラインで動画を配信しますか", noiseAnswer: "動画のオフライン配信は対象外です。オンラインの既存配信で端末間の再開を扱います。",
+        issues: [{ key: "revision", factKey: "resumePolicy", low: "FURTHEST_POSITION", correct: "SESSION_AND_SERVER_REVISION", high: "REBUILD_PLAYER_PIPELINE", subject: "再開位置と遅延した端末更新", question: "二台の記録では、一番先の再生位置を採ればよいですか", truth: "受講者・動画・教材版ごとに再開位置を持ちます。操作中の受講セッションとサーバーの版を照合し、旧セッションの遅延更新で上書きしません。見直しで戻った位置も保存します。最大の再生位置をそのまま使わず、配信基盤は作り直しません。", under: "一番先の位置を採れば端末切替は解決する", over: "動画配信とプレイヤーの全基盤を作り直す", scope: "受講者・動画・教材版・セッションとサーバー版による再開位置の更新", focus: ["受講者の見直しと端末切替の扱い", "最大位置の標準保存とセッション確認の差", "位置保存と全配信基盤の区別", "旧セッションの遅延更新と現在の版の境界"], reeval: ["先まで見た位置に寄せるのではなく、見直しと端末切替の条件を含めます。", "最大位置の保存だけでは足りません。セッションと版の照合を追加します。", "全配信基盤の再構築は外し、再開位置の更新条件に絞ります。", "古い端末から届く位置で、現在の見直し位置を上書きしない境界を入れます。"] }]
+      },
+      {
+        key: "access", name: "受講権と利用期限", viewpoint: "SECURITY_ACCESS", coreName: "講座ごとの受講資格確認", minorName: "受講者名簿の取込",
+        description: "本人がログインできることと、その講座を今受けられることを分ける",
+        summary: "法人の受講者へ講座を割り当てる。", detail: "既存本人認証を利用。講座と契約の有効期間を確認する。",
+        signals: ["法人契約による講座割当", "講座と受講者に利用期限を設定予定", "名簿は共通CSVと既存利用者IDを使用"],
+        entry: "本人認証に成功しても、契約した講座と期間は別です。動画のリンクを知っているだけでは受講資格になりません。",
+        minorTruth: "名簿は合意済みの共通CSVで既存利用者IDへ結び付けます。法人ごとの新しい本人認証基盤は作りません。",
+        minorUnder: "CSVなので利用者ID照合も不要", minorOver: "法人ごとの本人認証基盤を新設する", minorFocus: ["法人担当が確認する受講者ID", "共通CSVと既存IDの照合", "名簿取込と本人認証新設の区別", "取込接続と受講資格の区別"],
+        minorQuestion: "法人ごとに別の本人認証基盤を作りますか", noiseQuestion: "講座の新しい決済サービスも作りますか", noiseAnswer: "法人契約は別の既存業務で確定します。今回は確定した受講資格を利用し、決済サービスは作りません。",
+        issues: [{ key: "enrollment", factKey: "accessPolicy", low: "LOGIN_OR_VIDEO_LINK", correct: "LEARNER_COURSE_CONTRACT_WINDOW", high: "NEW_CORPORATE_IAM", subject: "本人・講座割当・契約期間の照合", question: "ログイン済みなら、動画リンクのある講座をすべて受けられますか", truth: "本人IDに加え、受講割当・講座ID・法人契約と利用期間をサーバーで照合します。期限後の新規視聴は止めますが、既存の修了履歴は残します。法人ごとに新しい認証基盤を作る必要はありません。", under: "ログインか動画リンクがあれば受講資格がある", over: "法人ごとに独立した認証基盤を新設する", scope: "受講割当と契約期間の確認、期限後の視聴停止と修了履歴の維持", focus: ["法人担当と講師の受講割当の合意", "共通ログインと講座別資格の差", "資格確認と認証基盤新設の区別", "本人・講座・契約期間と配信要求の境界"], reeval: ["本人確認だけで合意せず、講座割当と期限を含めます。", "共通ログインに加え、サーバー側の講座別資格確認を追加します。", "法人別の新認証基盤は外し、既存IDと受講割当へ絞ります。", "リンクを持つことと、現在有効な受講割当があることを分けて確認します。"] }]
+      },
+      {
+        key: "records", name: "視聴記録の集計と確定", viewpoint: "DATA_INTEGRATION", coreName: "再生区間と集計版の管理", minorName: "学習レポートCSV",
+        description: "重複した再生と、まだ集計されていない記録を区別する",
+        summary: "複数端末の視聴記録を集約して学習状況へ反映する。", detail: "遅延・再送を想定。区間の数え方と確定時点は講師へ確認する。",
+        signals: ["見直しと複数端末の再生記録が届く", "記録は非同期で集計予定", "学習レポートは共通CSVで出力"],
+        entry: "同じ区間を見直した記録や、後から届く記録があります。再生時間の足し算と、修了に使える集計版の確定は別です。",
+        otherPremise: "再生区間の重複と、記録の集計が終わった時点を分けて確認する必要があります。",
+        minorTruth: "学習レポートは合意済みの共通CSVです。法人別の帳票設計や学習能力のAI評価は追加しません。",
+        minorUnder: "CSVなので集計結果との照合も不要", minorOver: "法人別帳票とAI能力評価を新設する", minorFocus: ["講師と法人担当が読む共通項目", "共通CSV出力の設定", "定型レポートとAI評価の区別", "CSV出力と区間集計の区別"],
+        minorQuestion: "法人別の帳票とAI能力評価も作りますか", noiseQuestion: "全受講者の注意や理解を自動証明しますか", noiseAnswer: "受信した再生情報を集計する範囲です。注意や理解そのものの自動証明は行いません。",
+        issues: [
+          { key: "overlap", factKey: "intervalAggregation", low: "SUM_ALL_DURATIONS", correct: "UNION_INTERVALS_EVENT_DEDUP", high: "FRAME_LEVEL_SURVEILLANCE", subject: "見直し区間と再送イベントの重複除外", question: "再生した時間をすべて足せば視聴割合になりますか", truth: "受講者・動画・教材版ごとに再生区間の和集合を取り、同じイベントIDの再送も除外します。同じ部分の見直しで未視聴区間を埋めたことにはしません。シークした区間は再生として数えず、全フレームの監視は追加しません。", under: "同じ部分も含めて時間を足せば視聴済みになる", over: "全フレームを監視して本人の注意を証明する", scope: "区間の和集合、イベントIDの重複除外と、シーク区間の除外", focus: ["講師が説明できる重複しない視聴割合", "時間合計と区間集計の差", "受信記録の集計と本人監視の区別", "動画版・区間・イベントIDの対応"], reeval: ["時間合計での合意ではなく、見直し分を重複させない範囲を含めます。", "標準の時間加算に加え、区間統合とイベントIDの重複除外を追加します。", "全フレーム監視は外し、受信した区間の集計へ絞ります。", "同じ区間の再生と通知の再送を分け、どちらも二重に数えない確認を入れます。"] },
+          { key: "settled", factKey: "aggregationReadiness", low: "PLAYER_END_IS_FINAL", correct: "RECEIVED_SEQUENCE_AGGREGATED", high: "SYNC_EVERY_VIDEO_FRAME", subject: "受信連番までの集計完了と修了確定", question: "動画の完了画面が出た時点で、修了を確定できますか", truth: "表示だけでは記録の集計完了を保証しません。受け付けた記録の連番まで集計した版と、同じ版の判定結果で修了を確定します。遅延・再送は記録IDで受理し、未集計なら処理中とします。全フレームを同期処理へ変える必要はありません。", under: "動画完了画面が出れば集計も確定している", over: "動画の全フレームを同期してから表示する", scope: "受信連番・集計済み版・修了判定版の照合と処理中表示", focus: ["講師と受講者が共有する処理中の状態", "プレイヤー完了と集計完了の差", "確定時点の照合と全フレーム同期の区別", "受理済み記録と集計版と判定版の境界"], reeval: ["画面表示だけで修了とせず、集計中の状態を含めます。", "完了イベントだけでなく、受信連番までの集計確認を追加します。", "全フレーム同期は外し、同じ集計版を判定に使う範囲へ絞ります。", "未集計の記録がある版で修了を確定しない境界を入れます。"] }
+        ]
+      },
+      {
+        key: "versions", name: "教材差替えと修了履歴", viewpoint: "TECH_PLATFORM", coreName: "教材版と修了結果の保持", minorName: "修了証の一覧表示",
+        description: "更新後の教材と、過去に修了した時の条件を分ける",
+        summary: "教材の更新と修了結果を管理する。", detail: "教材差替えを想定。既存受講者と新規受講者に適用する版を確認する。",
+        signals: ["開講後に教材の更新が発生", "既存の修了結果を問い合わせで参照", "修了証は既存の共通表示を使用"],
+        entry: "教材が増えた時、過去の修了者を突然未修了へ戻すかは運用の決定です。現在の教材だけでは過去の判定を説明できません。",
+        minorTruth: "修了証の一覧は既存の共通テンプレートを使います。法人別デザインや新しい電子署名基盤は作りません。",
+        minorUnder: "共通表示なので修了証IDの確認も不要", minorOver: "法人別デザインと電子署名基盤を新設する", minorFocus: ["修了証を問い合わせる相手", "既存テンプレートの設定", "共通一覧と新署名基盤の区別", "表示IDと判定版の対応確認"],
+        minorQuestion: "法人ごとに修了証と署名基盤を新設しますか", noiseQuestion: "すべての配信動画を永久に保存しますか", noiseAnswer: "今回保持するのは教材版の識別と条件、修了判定の記録です。配信動画そのものの永久保存を追加する案件ではありません。",
+        issues: [{ key: "pinned", factKey: "curriculumVersion", low: "ALWAYS_LATEST_LESSONS", correct: "ENROLLMENT_VERSION_AND_HISTORY", high: "PERMANENT_VIDEO_ARCHIVE", subject: "受講時の教材版と既存修了履歴", question: "教材を追加したら、過去の修了判定も最新教材でやり直しますか", truth: "受講割当時の教材版と修了条件を固定し、判定時の版を記録します。既存の修了履歴は変更せず、新版の受講が必要なら別途割り当てます。現在の教材一覧だけで過去を再判定せず、全配信ファイルの永久保管は追加しません。", under: "最新の教材一覧だけで過去の結果も計算できる", over: "全動画ファイルを永久保存する基盤を追加する", scope: "受講割当の教材版・修了条件・判定版と、新版への別割当", focus: ["講師と法人担当が決める新版の対象者", "最新教材参照と受講時の版の差", "判定記録保持と動画永久保存の区別", "受講割当・教材版・修了履歴の対応"], reeval: ["最新の教材でまとめ直すのではなく、過去と新版の受講割当を分けます。", "最新一覧の参照だけでは足りません。受講時の版と判定条件を保持します。", "全動画の永久保存は外し、判定を説明する版と条件の記録へ絞ります。", "教材が増えた後も、過去に使った版で修了結果を説明できる境界を入れます。"] }]
+      }
+    ]
+  }
+];
+
+function registerAdditionalCase(definition) {
+  const prefix = definition.prefix, npcIds = TEAM_NPC_IDS;
+  const riskTrait = `${prefix}Risk`, routineTrait = `${prefix}Routine`, routineTag = `${prefix}RoutineConfirmed`;
+  const roles = {
+    npc_mediator_ojisan: { direction:"UNDER", mutation:"DEFER_DECISION", axis:"関係者の判断と合意する時点" },
+    npc_ai_newbie: { direction:"UNDER", mutation:"STANDARD_FEATURE_OPTIMISM", axis:"既存の標準機能が保証する範囲" },
+    npc_pmbok_master: { direction:"OVER", mutation:"PROCESS_OVERBUFFER", axis:"確定条件と過剰な安全幅の区別" },
+    npc_lone_engineer: { direction:"UNDER", mutation:"TECHNICAL_SCOPE_DISMISSAL", axis:"記録と実際の状態を分ける境界" }
+  };
+  const put = (registry,id,value) => { if(Object.prototype.hasOwnProperty.call(registry,id)) throw Error(`Additional case ID already exists: ${id}`); registry[id]=value; };
+  npcIds.forEach((npcId,index) => {
+    const id=`${prefix}_routine_${index}`;
+    NPC_JUDGMENT_PATTERNS[npcId].minorPatterns.push({id,requiredTraits:[routineTrait],matchAnyTraits:[routineTrait],errorType:"MINOR_SCOPE_ERROR",errorDirection:index===0||index===2?"OVER":"UNDER",maxImpact:1,requiredEvidenceTags:[routineTag]});
+    put(MINOR_FLAVOR_LINES,id,{});
+  });
+  const requirements=[],topicRefs=[];
+  definition.topics.forEach(spec => {
+    const profile=`${prefix}_${spec.key}_facts`,coreReq=`${prefix}_${spec.key}_operation`,minorReq=`${prefix}_${spec.key}_routine`;
+    const minorEvidenceId=`evidence_${prefix}_${spec.key}_routine`,poolId=`${prefix}_${spec.key}_core_pool`,treeId=`${prefix}_${spec.key}_questions`,definitionId=`${prefix}_${spec.key}_v1`;
+    const issueIds=spec.issues.map(issue=>`${prefix}_${spec.key}_${issue.key}`),tag=`${prefix}_${spec.key}_confirmed`;
+    const facts={},schema={},complexityByFact={};
+    spec.issues.forEach(issue=>{facts[issue.factKey]="NONE";schema[issue.factKey]={type:"string",enum:["NONE",issue.low,issue.correct,issue.high]};complexityByFact[issue.factKey]={NONE:0,[issue.low]:0,[issue.correct]:2,[issue.high]:4};});
+    put(REQUIREMENT_WRAPPERS,coreReq,{requirementId:coreReq,baseComplexity:1,primaryViewpoint:spec.viewpoint,secondaryViewpoints:[],baseTraits:[riskTrait,profile],factSchema:schema,complexityByFact});
+    put(REQUIREMENT_WRAPPERS,minorReq,{requirementId:minorReq,baseComplexity:1,primaryViewpoint:spec.viewpoint,secondaryViewpoints:[],baseTraits:[routineTrait],factSchema:{standardized:{type:"boolean"}}});
+    put(CASE_REQUIREMENT_CONTEXTS,profile,{[coreReq]:{requirementId:coreReq,correctFacts:facts,fixedTraits:[riskTrait,profile],correctMoscow:"Must"},[minorReq]:{requirementId:minorReq,correctFacts:{standardized:true},fixedTraits:[routineTrait],correctMoscow:"Should"}});
+    put(MINOR_RATIONALE_MATERIALS,minorReq,{subject:spec.minorName,personaFocus:Object.fromEntries(npcIds.map((id,i)=>[id,spec.minorFocus[i]])),reading:{UNDER:spec.minorUnder,OVER:spec.minorOver,ALIGNED:spec.minorTruth},scope:{UNDER:"共通設定と確認を見積から省く",OVER:spec.minorOver,ALIGNED:"合意済みの共通設定と確認だけを含める"},alternativeAngle:"共通の表示・出力と、対象外の新基盤を分ける"});
+    put(EVIDENCE_TEMPLATES,minorEvidenceId,{id:minorEvidenceId,sourceType:"PO_INTERVIEW",title:`${spec.minorName}は共通範囲`,text:spec.minorTruth,evidenceTags:[routineTag],reveals:[{requirementId:minorReq,factKey:"standardized",value:true}],relatedViewpoints:[spec.viewpoint]});
+    const eligibility={},conversations={},correctTexts={},plans={},reevalTexts={};
+    npcIds.forEach((npcId,index)=>{
+      const role=roles[npcId],patternId=`${prefix}_${spec.key}_pattern_${index}`;
+      NPC_JUDGMENT_PATTERNS[npcId].coreSpeakerPatterns.push({id:patternId,requiredTraits:[riskTrait,profile],matchAnyTraits:[profile],errorType:"PREMISE_ERROR",errorDirection:role.direction,beliefMutation:{type:role.mutation,description:spec.issues[0][role.direction==="OVER"?"over":"under"]},rationale:role.axis,requiredEvidenceTags:[tag]});
+      eligibility[npcId]={appear:true,viewpoints:{[spec.viewpoint]:{speak:true,minor:true,coreSpeaker:true,allowedCorePatternIds:[patternId]}}};
+      conversations[npcId]=npcIds.map((speakerId,i)=>({npcId:speakerId,ownRationale:{premise:spec.description,evaluationAxis:roles[speakerId].axis,conclusion:"案件固有の条件と対象外の範囲を分けて見積もる"},reaction:speakerId===npcId?null:{act:i%2?"CHALLENGE":"QUALIFY",targetNpcId:npcId,text:`${spec.name}の判断条件は確認済みでしょうか。`},spokenText:`${spec.name}は${roles[speakerId].axis}から確認したいです。`}));
+      correctTexts[npcId]=`${spec.name}は確定した条件と対象外を区別して見積もります。`;
+      plans[npcId]=[npcId,...npcIds.filter(id=>id!==npcId)].map((speakerId,i)=>({npcId:speakerId,dialogueAct:i===0?"CLARIFY":i===3?"SUMMARIZE":"QUALIFY",targetNpcId:i===0?null:npcId}));
+      reevalTexts[npcId]=plans[npcId].map(entry=>spec.issues[0].reeval[npcIds.indexOf(entry.npcId)]);
+      MINOR_FLAVOR_LINES[`${prefix}_routine_${index}`][profile]=index===0||index===2?spec.minorOver:spec.minorUnder;
+    });
+    put(CASE_NPC_ELIGIBILITY,profile,eligibility);put(CONVERSATION_DATA,profile,conversations);put(CORRECT_BELIEF_TEXT,profile,correctTexts);put(REEVAL_PLANS,profile,plans);put(ADDITIONAL_REEVAL_TEXTS,profile,reevalTexts);
+    const branches=[];
+    spec.issues.forEach((issue,index)=>{
+      const id=issueIds[index],evidenceId=`evidence_${id}`;
+      const rationale={personaFocus:Object.fromEntries(npcIds.map((npcId,i)=>[npcId,issue.focus[i]])),reading:{UNDER:issue.under,OVER:issue.over,ALIGNED:issue.truth},scope:{UNDER:"案件固有の条件を確認せず共通機能だけに省く",OVER:issue.over,ALIGNED:issue.scope},alternativeAngle:`${issue.scope}と対象外の追加機能を区別する`};
+      put(CORE_ISSUE_DEFINITIONS,id,{id,caseId:profile,viewpoint:spec.viewpoint,issueType:"PREMISE_ERROR",fact:{requirementId:coreReq,factKey:issue.factKey,correctValue:issue.correct},mutationValues:{low:issue.low,high:issue.high},scenarioFacts:{...facts,[issue.factKey]:issue.correct},scenarioTraits:[riskTrait,profile],statement:issue.truth,issueTraits:[riskTrait,profile],relatedRequirementIds:[coreReq],evidenceCandidateIds:[evidenceId],eligibleCoreSpeakerPatternTags:Object.values(roles).map(role=>role.mutation),discussion:{subject:issue.subject,correctCue:issue.scope,underCue:issue.under,overCue:issue.over,rationale,reevaluationLines:Object.fromEntries(npcIds.map((npcId,i)=>[npcId,issue.reeval[i]]))}});
+      put(EVIDENCE_TEMPLATES,evidenceId,{id:evidenceId,sourceType:"PO_INTERVIEW",title:issue.subject,text:issue.truth,evidenceTags:[tag],reveals:[{requirementId:coreReq,factKey:issue.factKey,value:issue.correct}],relatedViewpoints:[spec.viewpoint]});
+      const strongNote={title:issue.subject,text:issue.truth,requirementIds:[coreReq],evidenceTags:[tag],strength:"STRONG",effectEvidenceId:evidenceId};
+      branches.push({id:`confirm_${issue.key}`,label:issue.question,text:issue.truth,cost:13,note:strongNote,issueEffects:Object.fromEntries(spec.issues.map((other,otherIndex)=>[issueIds[otherIndex],otherIndex===index?{text:issue.truth,note:strongNote}:{text:spec.otherPremise||"この条件だけでは、今回の未確認の前提を確定できません。",note:{title:`${spec.name}には別の確認が必要`,text:spec.otherPremise,requirementIds:[coreReq],evidenceTags:[tag],strength:"PARTIAL",effectEvidenceId:`evidence_${issueIds[otherIndex]}`}}]))});
+    });
+    const partialText=`既存機能を使いますが、${spec.description}ための条件は追加確認が必要です。`;
+    branches.push({id:"partial_premise",label:"共通の標準機能だけで十分ですか",text:partialText,cost:8,note:{title:`${spec.name}の条件は未確認`,text:partialText,requirementIds:[coreReq],evidenceTags:[tag],strength:"PARTIAL",effectEvidenceId:`evidence_${issueIds[0]}`},issueEffects:Object.fromEntries(issueIds.map(id=>[id,{note:{title:`${spec.name}の条件は未確認`,text:partialText,requirementIds:[coreReq],evidenceTags:[tag],strength:"PARTIAL",effectEvidenceId:`evidence_${id}`}}]))});
+    branches.push({id:"routine_scope",label:spec.minorQuestion,text:spec.minorTruth,cost:9,note:{title:`${spec.minorName}は共通範囲`,text:spec.minorTruth,requirementIds:[minorReq],evidenceTags:[routineTag],strength:"STRONG",effectEvidenceId:minorEvidenceId}});
+    const noiseId=`evidence_${prefix}_${spec.key}_out_of_scope`;
+    put(EVIDENCE_TEMPLATES,noiseId,{id:noiseId,sourceType:"PO_INTERVIEW",title:"今回の対象外",text:spec.noiseAnswer,evidenceTags:[`${prefix}OutOfScope`],reveals:[],relatedViewpoints:[spec.viewpoint]});
+    branches.push({id:"future_scope",label:spec.noiseQuestion,text:spec.noiseAnswer,cost:15,note:{title:"今回の対象外",text:spec.noiseAnswer,requirementIds:[],evidenceTags:[`${prefix}OutOfScope`],strength:"IRRELEVANT",effectEvidenceId:noiseId}});
+    put(PO_QUESTION_TREES,treeId,{entry:{text:spec.entry,cost:7},branches});put(CORE_ISSUE_POOLS,poolId,issueIds);
+    put(TOPIC_CATALOG,definitionId,{id:`topic_${prefix}_${spec.key}`,name:spec.name,viewpointId:spec.viewpoint,requirementIds:[coreReq,minorReq],description:spec.description,rfpSignals:spec.signals.map((text,i)=>({id:`${prefix}_${spec.key}_signal_${i}`,text,issueIds:i===2?[]:issueIds})),factProfileId:profile,coreIssuePoolId:poolId,questionTreeId:treeId,npcEligibilityProfileId:profile,dialogueProfileId:profile,minorEvidenceId});
+    requirements.push({id:coreReq,name:spec.coreName,summary:spec.summary,rfpDetail:spec.detail},{id:minorReq,name:spec.minorName,summary:spec.minorTruth,rfpDetail:"既存の共通仕様を利用。接続と確認を含め、別の基盤は追加しない。"});topicRefs.push(definitionId);
+  });
+  const teamConversations=Object.fromEntries(npcIds.map((npcId,i)=>[npcId,{po:{byPersona:Object.fromEntries(Object.entries(definition.poObservations[npcId]).map(([id,text])=>[id,{text}]))},smalltalk:{text:definition.smalltalk[i]}}]));
+  return materializeProject({id:definition.id,title:definition.title,overview:definition.overview,background:definition.background,objectives:definition.objectives,constraints:definition.constraints,poIntroductions:definition.poIntroductions,teamConversations,requirements,topicRefs});
+}
+
+function registerAdditionalCases() { return ADDITIONAL_CASE_DEFINITIONS.map(registerAdditionalCase); }
+
 /* Custom game events only. Local, preview and QA execution never loads the tag. */
 const GameAnalytics = (() => {
   const measurementId = "G-JZ5YTR8SW6";
@@ -3325,6 +3549,7 @@ function validateCasePool(casePool) {
 }
 
 CASE_POOL.push(registerFestivalCase());
+CASE_POOL.push(...registerAdditionalCases());
 validateCasePool(CASE_POOL);
 
 function hashSeed(value) {
